@@ -76,7 +76,8 @@
         <label>Difficulty:</label>
         <select id="difficulty" onchange="changeDifficulty()">
             <option value="easy">Easy (40s, 3-letter words)</option>
-            <option value="medium">Medium (30s, all words)</option>
+            <option value="medium-3">Medium (20s, 3-letter words)</option>
+            <option value="medium-4">Medium (30s, 4-letter words)</option>
             <option value="hard">Hard (10s, all words)</option>
         </select>
         <button onclick="restartGame()">Restart</button>
@@ -101,7 +102,7 @@
 
 
 <script lang="javascript">
-    let allWords = [ "ant", "bat", "cat", "dog", "egg", "fig", "gem", "hat", "ice", "jam",
+    let allWords = [  "ant", "bat", "cat", "dog", "egg", "fig", "gem", "hat", "ice", "jam",
     "kit", "log", "map", "nut", "owl", "pan", "sun", "top", "urn",
     "vet", "wax", "yak", "zoo", "arm", "bay", "car", "dip", "fan",
     "gap", "hot", "ink", "jug", "key", "leg", "net", "oil", "pig",
@@ -112,17 +113,71 @@
     "sea", "tin", "urn", "who", "bay", "cod", "ear", "far",
     "goo", "him", "ice", "job", "keg", "law", "mix", "owl", "pep",
     "sap", "tot", "urn", "yes", "zip", "god", "nap", "ten", "was",
+    "add", "age", "aid", "aim", "air", "ale", "all", "and", "any", "arc",
+    "are", "ark", "art", "ash", "ask", "asp", "awe", "axe", "ban", "bar",
+    "bed", "bee", "bet", "bid", "big", "bin", "bit", "bow", "boy",
+    "bud", "bum", "bun", "bus", "but", "buy", "bye", "cab",
+    "can", "cap", "cat", "caw", "cob", "col", "con", "cop", "cot",
+    "cow", "coy", "cry", "cub", "cue", "cup", "cut", "dad", "dam", "day",
+    "den", "dew", "did", "die", "dig", "dim", "din", "dip", "doe", "dot",
+    "dry", "dub", "dud", "due", "dug", "duo", "dye", "ear", "eat",
+    "eel", "egg", "ego", "elk", "elm", "emu", "end", "era", "eve",
+    "eye", "fan", "fat", "fax", "fed", "fee", "few", "fig", "fin",
+    "fit", "fix", "flu", "fly", "foe", "fog", "for", "fox", "fry", "fun",
+    "fur", "gap", "gas", "gel", "gem", "get", "gig", "gin", "got",
+    "gum", "gut", "guy", "gym", "had", "ham", "has", "hat", "hay", "hem",
+    "hen", "her", "hey", "hid", "him", "hip", "his", "hit", "hog", "hop",
+    "hot", "how", "hub", "hue", "hug", "hum", "hut", "ice", "icy", "ink",
+    "inn", "ion", "its", "ivy", "jab", "jam", "jar", "jaw", "jay", "jet",
+    "jig", "job", "jog", "joy", "jug", "keg", "ken", "key", "kid", "kin",
+    "kit", "lab", "lad", "lag", "lap", "law", "lay", "leg", "let", "lid",
+    "lie", "lip", "lit", "log", "lot", "low", "lug", "mad", "man", "map",
+    "mat", "maw", "may", "men", "met", "mid", "mix", "mob", "mop", "mow",
+    "mud", "mug", "mum", "nab", "nap", "nay", "net", "new", "nib", "nil",
+    "nip", "nod", "nor", "not", "now", "nun", "nut", "oak", "oar", "oat",
+    "odd", "off", "oft", "oil", "old", "one", "opt", "orb", "ore", "our",
+    "out", "owl", "own", "pad", "pal", "pan", "par", "pat", "paw", "pea",
+    "peg", "pen", "pet", "pew", "pic", "pie", "pig", "pin", "pit", "ply",
+    "pod", "pop", "pot", "pox", "pro", "pry", "pub", "pug", "pun", "pup",
+    "put", "rag", "ram", "ran", "rap", "rat", "raw", "ray", "red", "rib",
+    "rid", "rig", "rim", "rip", "rob", "rod", "rot", "row", "rub", "rug",
+    "rum", "run", "rut", "rye", "sad", "sag", "sap", "sat", "saw", "say",
+    "sea", "see", "set", "sew", "she", "shy", "sin", "sip", "sir", "sit",
+    "six", "ski", "sky", "sly", "sob", "sod", "son", "sow", "soy", "spa",
+    "spy", "sub", "sue", "sum", "sun", "sup", "tab", "tag", "tan", "tap",
+    "tar", "tax", "tea", "tee", "ten", "the", "thy", "tie", "tin", "tip",
+    "toe", "ton", "too", "top", "tot", "tow", "toy", "try", "tub", "tug",
+    "two", "use", "van", "vat", "vet", "via", "vie", "war", "was", "wax",
+    "way", "web", "wed", "wet", "who", "why", "wig", "win", "wit", "wok",
+    "won", "woo", "wow", "wry", "yak", "yam", "yap", "yaw", "yea", "yen",
+    "yes", "yet", "yew", "you", "yup", "zip", "zoo",
     "able", "bald", "band", "bark", "barn", "bass", "bath", "beak", "beam",
-    "bean", "bear", "beat", "beef", "bell", "belt", "bend", "bent", "bill",
+    "bean", "bear", "beat", "bell", "belt", "bend", "bent", "bill",
     "bind", "bird", "blow", "blue", "boat", "body", "boil", "bold", "bolt",
     "bond", "bone", "book", "boom", "boot", "born", "bowl", "bulb", "bulk",
     "bush", "busy", "cage", "cake", "call", "calm", "camp", "card",
     "care", "cart", "case", "cash", "cast", "cave", "cell", "cent", "chat", "chip",
     "city", "clay", "club", "coal", "coat", "coil", "cold", "come", "cook", "cool",
     "cope", "copy", "cord", "core", "cork", "corn", "crew", "crop", "dash", "data", "date", "dawn", "days",
-    "deal", "dean", "dear", "debt", "deep", "desk", "dial", "dice", "diet", "disc", "disk",
-    "done", "door", "dove", "draw", "drew", "drop", "drum", "duck"];
-let words = allWords.filter(word => word.length === 4);
+    "deal", "dean", "dear", "deep", "desk", "dial", "dice", "diet", "disc", "disk",
+    "done", "door", "dove", "draw", "drop", "drum", "duck",
+    "golf", "fish", "play", "puff", "gaze", "hair", "pale", "ripe", "silk", "soil",
+    "tape", "wolf", "clue", "moss", "pear", "rice", "soda", "sock",
+    "suit", "tail", "tofu", "toys", "maze", "meal", "moat", "moon", "roof",
+    "herb", "hero", "hike", "hint", "hive", "home", "hope", "hugs", "lamp", "leaf",
+    "loaf", "lock", "milk", "mist", "mole", "monk", "moth", "nest", "pawn",
+    "pint", "poll", "pond", "pool", "puddle", "pump", "pure", "salt", "sand", "seal",
+    "seed", "seek", "seem", "sell", "send", "shed", "shoe", "shop", "sing", "sink",
+    "size", "skin", "skip", "slab", "slam", "slap", "slim", "slip", "snag", "snap",
+    "snow", "soap", "soar", "sofa", "soft", "sold", "sole", "some",
+    "song", "soon", "soup", "sour", "spin", "spit", "spun", "star", "stay", "stem",
+    "step", "stew", "stop", "swim", "take", "talk", "tank", "task", "team", "tear",
+    "tide", "tile", "tint", "tiny", "toil", "tool", "town", "trap", "tree", "trip",
+    "tune", "turn", "twig", "twin", "type", "wall", "wand", "warm", "warn", "warp",
+    "wash", "wasp", "wear", "weed", "weep", "weld", "well", "welt", "west", "whip",
+    "wild", "wilt", "wind", "wing", "wipe", "wire", "wise", "wish", "wolf", "wood",
+    "wool", "word", "work", "worm", "worn", "wrap", "yarn", "yawn", "yolk", "zone"];
+let words = allWords.filter(word => word.length === 3);
 let currentWord = '';
 let score = 0;
 let timerDuration = 40; // Default to easy mode
@@ -214,9 +269,12 @@ function changeDifficulty() {
     if (difficulty === 'easy') {
         timerDuration = 40;
         words = allWords.filter(word => word.length === 3);
-    } else if (difficulty === 'medium'){
+    } else if (difficulty === 'medium-3'){
+        timerDuration = 20;
+        words = allWords.filter(word => word.length === 3);;
+    } else if (difficulty === 'medium-4'){
         timerDuration = 30;
-        words = allWords;
+        words = allWords.filter(word => word.length === 4);;
     }
     else {
         timerDuration = 10;
