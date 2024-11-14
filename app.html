@@ -1,74 +1,69 @@
 <!DOCTYPE html>
 <style>
     body { 
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
-    position: relative;
-    overflow: hidden; /* Prevents scrolling */
-    background-color: black;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: bottom bottom; 
-}
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+        background-color: black;
+        color: white;
+    }
 
-#feedback {
-    margin-top: 20px;
-    font-size: 24px;
-    font-weight: bold;
-}
+    #feedback, #timer, .score {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
 
-#timer {
-    padding: 20px;
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-}
+    #scrambled-letters, #answer-box {
+        margin: 20px auto;
+        padding: 10px;
+        border: 1px solid #ccc;
+        min-height: 50px;
+        width: 90%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 
-.score {
-    margin-top: 20px;
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-}
+    .letter {
+        display: inline-block;
+        padding: 15px;
+        margin: 5px;
+        border: 2px solid black;
+        background-color: #e0e0e0;
+        color: black;
+        font-size: 24px;
+    }
 
-#scrambled-letters, #answer-box {
-    margin: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    min-height: 50px;
-    cursor: pointer;
-}
+    button {
+        display: block;
+        width: 90%; /* Adjusted width for better alignment */
+        padding: 20px;
+        font-size: 20px;
+        margin: 10px auto; /* Centers the button and adds space */
+        cursor: pointer;
+        border: none;
+        background-color: #333;
+        color: white;
+    }
 
-#wrong-words-list {
-    position: relative;
-    margin: 30px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    color: white;
-}
+    select, #difficulty {
+        display: block;
+        width: 90%; /* Match button width */
+        padding: 20px;
+        font-size: 20px;
+        margin: 10px auto; /* Align with buttons */
+        cursor: pointer;
+        background-color: #333;
+        color: white;
+        border: none;
+    }
 
-#difficulty {
-    height: 30px;
-}
-
-.letter {
-    display: inline-block;
-    padding: 15px;
-    margin: 5px;
-    border: 2px solid black;
-    background-color: #e0e0e0;
-    font-size: 24px;
-}
-
-button {
-    padding: 20px;
-    font-size: 20px;
-    cursor: pointer;
-    margin-top: 5px;
-}
-
+    #wrong-words-list {
+        color: white;
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
 </style>
 <html lang="en">
 <head>
@@ -87,23 +82,24 @@ button {
         <button onclick="restartGame()">Restart</button>
     </div>
     <div>
-        <span><div id="feedback"></div></span>
-        <span><div id="timer">Time: <span id="time">10</span>s</div></span>
-        <span><div class="score">Score: <span class="score" id="score">0</span></div></span>
+        <div id="feedback"></div>
+        <div id="timer">Time: <span id="time">10</span>s</div>
+        <div class="score">Score: <span id="score">0</span></div>
     </div>
-    <div id="snow"></div> <!-- Snowfall layer -->
     <div id="scrambled-letters"></div>
     <div id="answer-box"></div>
-    <button onclick="checkWord()">Check Word</button> <br/>
+    <button onclick="checkWord()">Check Word</button>
     <button onclick="resetLetters()">Reset</button>
-    <button onclick="nextWord()">Next Word</button> <br/>
+    <button onclick="nextWord()">Next Word</button>
     <button onclick="showIncorrectWords()">Incorrect Words</button>
-
     <div id="incorrect-words" style="display:none;">Incorrect Words: 
-    <div id="wrong-words-list"></div> </div> <!-- Container to display the incorrect words -->
+    <div id="wrong-words-list"></div></div>
 
+    <!-- Existing JavaScript code remains the same -->
 </body>
 </html>
+
+
 <script lang="javascript">
     let allWords = [ "ant", "bat", "cat", "dog", "egg", "fig", "gem", "hat", "ice", "jam",
     "kit", "log", "map", "nut", "owl", "pan", "sun", "top", "urn",
@@ -175,8 +171,8 @@ function checkWord() {
         document.getElementById('feedback').textContent = "Correct! Well done!";
         score++;
     } else {
-        document.getElementById('feedback').style.color = 'red';
-        document.getElementById('feedback').textContent = "Oops! Try again!";
+        document.getElementById('feedback').style.color = 'orange';
+        document.getElementById('feedback').textContent = "Oops! Correct word is: " + currentWord;
         incorrectWords.push(currentWord); // Store incorrect word
     }
     document.getElementById('score').textContent = score;
