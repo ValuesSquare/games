@@ -73,14 +73,21 @@
 </head>
 <body>
     <div>
-        <label>Difficulty:</label>
+        
         <select id="difficulty" onchange="changeDifficulty()">
             <option value="easy">Easy (40s, 3-letter words)</option>
             <option value="medium-3">Medium (20s, 3-letter words)</option>
             <option value="medium-4">Medium (30s, 4-letter words)</option>
             <option value="hard">Hard (10s, all words)</option>
         </select>
-        <button onclick="restartGame()">Restart</button>
+        <div>
+            <span>
+            <button onclick="restartGame()">Restart</button>
+        </span>
+        <span>
+            <button id="pause-resume-btn" onclick="togglePauseResume()">Pause Timer</button>
+        </span>
+        </div>
     </div>
     <div>
         <div id="feedback"></div>
@@ -184,6 +191,7 @@ let timerDuration = 40; // Default to easy mode
 let timer = timerDuration;
 let interval;
 let incorrectWords = [];
+let isPaused = false; // Track whether the timer is paused
 
 window.onload = function() {
     nextWord();
@@ -247,16 +255,28 @@ function startTimer() {
     timer = timerDuration;
     const timeElement = document.getElementById('time');
     interval = setInterval(function() {
-        if (timer > 0) {
-            timer--;
-            timeElement.textContent = timer;
-        } else {
-            clearInterval(interval);
-            document.getElementById('feedback').textContent = "Time's up!";
-            document.getElementById('feedback').style.color = 'red';
-            nextWord();
+        if (!isPaused) {
+            if (timer > 0) {
+                timer--;
+                timeElement.textContent = timer;
+            } else {
+                clearInterval(interval);
+                document.getElementById('feedback').textContent = "Time's up!";
+                document.getElementById('feedback').style.color = 'red';
+                nextWord();
+            }
         }
     }, 1000);
+}
+
+function togglePauseResume() {
+    const btn = document.getElementById('pause-resume-btn');
+    isPaused = !isPaused; // Toggle the pause state
+    if (isPaused) {
+        btn.textContent = 'Resume Timer';
+    } else {
+        btn.textContent = 'Pause Timer';
+    }
 }
 
 function showIncorrectWords() {
@@ -290,6 +310,8 @@ function restartGame() {
     document.getElementById('score').textContent = score;
     document.getElementById('wrong-words-list').textContent = '';
     document.getElementById('incorrect-words').style.display = 'none';
+    isPaused = false; // Ensure the game is not paused when restarting
+    document.getElementById('pause-resume-btn').textContent = 'Pause Timer'; // Reset the button text
     nextWord();
 }
 
