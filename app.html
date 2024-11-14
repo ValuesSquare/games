@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<style>
+    body { 
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    overflow: hidden; /* Prevents scrolling */
+    background-color: black;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: bottom bottom; 
+}
+
+#feedback {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#timer {
+    padding: 20px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.score {
+    margin-top: 20px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#scrambled-letters, #answer-box {
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    min-height: 50px;
+    cursor: pointer;
+}
+
+#wrong-words-list {
+    position: relative;
+    margin: 30px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    color: white;
+}
+
+.letter {
+    display: inline-block;
+    padding: 15px;
+    margin: 5px;
+    border: 2px solid black;
+    background-color: #e0e0e0;
+    font-size: 24px;
+}
+
+button {
+    padding: 20px;
+    font-size: 20px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+</style>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Arrangement Game</title>
+</head>
+<body>
+    <div>
+        <span><div id="feedback"></div></span>
+        <span><div id="timer">Time: <span id="time">10</span>s</div></span>
+        <span><div class="score">Score: <span class="score" id="score">0</span></div></span>
+    </div>
+    <div id="snow"></div> <!-- Snowfall layer -->
+    <div id="scrambled-letters"></div>
+    <div id="answer-box"></div>
+    <button onclick="checkWord()">Check Word</button> <br/>
+    <button onclick="nextWord()">Next Word</button> <br/>
+    <button onclick="showIncorrectWords()">Show Incorrect Words</button>
+
+    <div id="incorrect-words" style="display:none;">Incorrect Words: 
+    <div id="wrong-words-list"></div> </div> <!-- Container to display the incorrect words -->
+
+</body>
+</html>
+<script lang="javascript">
+    let words = [ "ant", "bat", "cat", "dog", "egg", "fig", "gem", "hat", "ice", "jam",
+    "kit", "log", "map", "nut", "owl", "pan", "rat", "sun", "top", "urn",
+    "vet", "wax", "yak", "zoo", "arm", "bay", "car", "dip", "end", "fan",
+    "gap", "hot", "ink", "jug", "key", "leg", "mud", "net", "oil", "pig",
+    "row", "saw", "tan", "van", "web", "box", "cup", "fox", "gum", "hen",
+    "jet", "koi", "lip", "mat", "new", "out", "pea", "rob", "sit", "tag",
+    "use", "win", "yet", "zig", "ape", "bug", "cob", "dim", "elf", "fun",
+    "gas", "hut", "ivy", "joy", "kid", "lap", "mob", "nod", "ore", "pod",
+    "rag", "sea", "tin", "urn", "who", "bay", "cod", "dry", "ear", "far",
+    "goo", "him", "ice", "job", "keg", "law", "mix", "nor", "owl", "pep",
+    "red", "sap", "tot", "urn", "wet", "yes", "zip", "god", "nap", "tar", "ten", "was",
+    "able", "acid", "bald", "band", "bark", "barn", "bass", "bath", "beak", "beam",
+    "bean", "bear", "beat", "beef", "beer", "bell", "belt", "bend", "bent", "bill",
+    "bind", "bird", "blow", "blue", "boat", "body", "boil", "bold", "bolt", "bomb",
+    "bond", "bone", "book", "boom", "boot", "bore", "born", "bowl", "bulb", "bulk",
+    "burn", "bury", "bush", "busy", "cage", "cake", "call", "calm", "camp", "card",
+    "care", "cart", "case", "cash", "cast", "cave", "cell", "cent", "chat", "chip",
+    "city", "clay", "club", "coal", "coat", "coil", "cold", "come", "cook", "cool",
+    "cope", "copy", "cord", "core", "cork", "corn", "cost", "crew", "crop", "dark",
+    "dash", "data", "date", "dawn", "days", "dead", "deal", "dean", "dear", "debt",
+    "deep", "deny", "desk", "dial", "dice", "diet", "disc", "disk", "does", "done",
+    "door", "dove", "down", "draw", "drew", "drop", "drug", "drum", "duck", "dull"];
+let currentWord = '';
+let score = 0;
+let timer = 10;
+let interval;
+let incorrectWords = [];
+
+window.onload = function() {
+    nextWord();
+};
+
+function displayScrambledLetters() {
+    const scrambledLetters = document.getElementById('scrambled-letters');
+    scrambledLetters.innerHTML = ''; // Clear previous letters
+    let scrambled = shuffle(currentWord.split(''));
+    scrambled.forEach(letter => {
+        const letterElement = document.createElement('span');
+        letterElement.textContent = letter;
+        letterElement.className = 'letter';
+        letterElement.onclick = function() {
+            moveLetter(this);
+        };
+        scrambledLetters.appendChild(letterElement);
+    });
+}
+
+function moveLetter(letterElement) {
+    const answerBox = document.getElementById('answer-box');
+    answerBox.appendChild(letterElement);
+    letterElement.onclick = null;
+}
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function checkWord() {
+    const formedWord = Array.from(document.getElementById('answer-box').children).map(el => el.textContent).join('');
+    if(words.indexOf(formedWord) !== -1) {
+        document.getElementById('feedback').style.color = 'green';
+        document.getElementById('feedback').textContent = "Correct! Well done!";
+        score++;
+    } else {
+        document.getElementById('feedback').style.color = 'red';
+        document.getElementById('feedback').textContent = "Oops! Try again!";
+        incorrectWords.push(currentWord); // Store incorrect word
+    }
+    document.getElementById('score').textContent = score;
+    nextWord();
+}
+
+function nextWord() {
+    //document.getElementById('feedback').style.color = 'white'; // Reset feedback color
+    if (interval) clearInterval(interval);
+    currentWord = words[Math.floor(Math.random() * words.length)];
+    displayScrambledLetters();
+    document.getElementById('answer-box').innerHTML = '';
+    startTimer();
+}
+
+function startTimer() {
+    timer = 10;
+    const timeElement = document.getElementById('time');
+    interval = setInterval(function() {
+        if (timer > 0) {
+            timer--;
+            timeElement.textContent = timer;
+        } else {
+            clearInterval(interval);
+            document.getElementById('feedback').textContent = "Time's up!";
+            document.getElementById('feedback').style.color = 'red';
+            nextWord();
+        }
+    }, 1000);
+}
+
+function showIncorrectWords() {
+    document.getElementById('wrong-words-list').textContent = incorrectWords.join(', ');
+    document.getElementById('incorrect-words').style.display = ''; // Display the list
+}
+
+</script>
