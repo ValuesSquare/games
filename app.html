@@ -49,6 +49,10 @@
     color: white;
 }
 
+#difficulty {
+    height: 30px;
+}
+
 .letter {
     display: inline-block;
     padding: 15px;
@@ -62,7 +66,7 @@ button {
     padding: 20px;
     font-size: 20px;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 </style>
@@ -74,6 +78,15 @@ button {
 </head>
 <body>
     <div>
+        <label>Difficulty:</label>
+        <select id="difficulty" onchange="changeDifficulty()">
+            <option value="easy">Easy (40s, 3-letter words)</option>
+            <option value="medium">Medium (30s, all words)</option>
+            <option value="hard">Hard (10s, all words)</option>
+        </select>
+        <button onclick="restartGame()">Restart</button>
+    </div>
+    <div>
         <span><div id="feedback"></div></span>
         <span><div id="timer">Time: <span id="time">10</span>s</div></span>
         <span><div class="score">Score: <span class="score" id="score">0</span></div></span>
@@ -82,8 +95,9 @@ button {
     <div id="scrambled-letters"></div>
     <div id="answer-box"></div>
     <button onclick="checkWord()">Check Word</button> <br/>
+    <button onclick="resetLetters()">Reset</button>
     <button onclick="nextWord()">Next Word</button> <br/>
-    <button onclick="showIncorrectWords()">Show Incorrect Words</button>
+    <button onclick="showIncorrectWords()">Incorrect Words</button>
 
     <div id="incorrect-words" style="display:none;">Incorrect Words: 
     <div id="wrong-words-list"></div> </div> <!-- Container to display the incorrect words -->
@@ -91,31 +105,32 @@ button {
 </body>
 </html>
 <script lang="javascript">
-    let words = [ "ant", "bat", "cat", "dog", "egg", "fig", "gem", "hat", "ice", "jam",
-    "kit", "log", "map", "nut", "owl", "pan", "rat", "sun", "top", "urn",
-    "vet", "wax", "yak", "zoo", "arm", "bay", "car", "dip", "end", "fan",
-    "gap", "hot", "ink", "jug", "key", "leg", "mud", "net", "oil", "pig",
-    "row", "saw", "tan", "van", "web", "box", "cup", "fox", "gum", "hen",
-    "jet", "koi", "lip", "mat", "new", "out", "pea", "rob", "sit", "tag",
-    "use", "win", "yet", "zig", "ape", "bug", "cob", "dim", "elf", "fun",
-    "gas", "hut", "ivy", "joy", "kid", "lap", "mob", "nod", "ore", "pod",
-    "rag", "sea", "tin", "urn", "who", "bay", "cod", "dry", "ear", "far",
-    "goo", "him", "ice", "job", "keg", "law", "mix", "nor", "owl", "pep",
-    "red", "sap", "tot", "urn", "wet", "yes", "zip", "god", "nap", "tar", "ten", "was",
-    "able", "acid", "bald", "band", "bark", "barn", "bass", "bath", "beak", "beam",
-    "bean", "bear", "beat", "beef", "beer", "bell", "belt", "bend", "bent", "bill",
-    "bind", "bird", "blow", "blue", "boat", "body", "boil", "bold", "bolt", "bomb",
-    "bond", "bone", "book", "boom", "boot", "bore", "born", "bowl", "bulb", "bulk",
-    "burn", "bury", "bush", "busy", "cage", "cake", "call", "calm", "camp", "card",
+    let allWords = [ "ant", "bat", "cat", "dog", "egg", "fig", "gem", "hat", "ice", "jam",
+    "kit", "log", "map", "nut", "owl", "pan", "sun", "top", "urn",
+    "vet", "wax", "yak", "zoo", "arm", "bay", "car", "dip", "fan",
+    "gap", "hot", "ink", "jug", "key", "leg", "net", "oil", "pig",
+    "row", "tan", "van", "web", "box", "cup", "fox", "gum", "hen",
+    "jet", "koi", "lip", "mat", "new", "out", "pea", "sit", "tag",
+    "use", "win", "yet", "zig", "ape", "bug", "cob", "elf", "fun",
+    "gas", "hut", "ivy", "joy", "kid", "lap", "nod", "ore", "pod",
+    "sea", "tin", "urn", "who", "bay", "cod", "ear", "far",
+    "goo", "him", "ice", "job", "keg", "law", "mix", "owl", "pep",
+    "sap", "tot", "urn", "yes", "zip", "god", "nap", "ten", "was",
+    "able", "bald", "band", "bark", "barn", "bass", "bath", "beak", "beam",
+    "bean", "bear", "beat", "beef", "bell", "belt", "bend", "bent", "bill",
+    "bind", "bird", "blow", "blue", "boat", "body", "boil", "bold", "bolt",
+    "bond", "bone", "book", "boom", "boot", "born", "bowl", "bulb", "bulk",
+    "bush", "busy", "cage", "cake", "call", "calm", "camp", "card",
     "care", "cart", "case", "cash", "cast", "cave", "cell", "cent", "chat", "chip",
     "city", "clay", "club", "coal", "coat", "coil", "cold", "come", "cook", "cool",
-    "cope", "copy", "cord", "core", "cork", "corn", "cost", "crew", "crop", "dark",
-    "dash", "data", "date", "dawn", "days", "dead", "deal", "dean", "dear", "debt",
-    "deep", "deny", "desk", "dial", "dice", "diet", "disc", "disk", "does", "done",
-    "door", "dove", "down", "draw", "drew", "drop", "drug", "drum", "duck", "dull"];
+    "cope", "copy", "cord", "core", "cork", "corn", "crew", "crop", "dash", "data", "date", "dawn", "days",
+    "deal", "dean", "dear", "debt", "deep", "desk", "dial", "dice", "diet", "disc", "disk",
+    "done", "door", "dove", "draw", "drew", "drop", "drum", "duck"];
+let words = allWords.filter(word => word.length === 4);
 let currentWord = '';
 let score = 0;
-let timer = 10;
+let timerDuration = 40; // Default to easy mode
+let timer = timerDuration;
 let interval;
 let incorrectWords = [];
 
@@ -132,16 +147,17 @@ function displayScrambledLetters() {
         letterElement.textContent = letter;
         letterElement.className = 'letter';
         letterElement.onclick = function() {
-            moveLetter(this);
+            moveLetter(this, document.getElementById('answer-box'), document.getElementById('scrambled-letters'));
         };
         scrambledLetters.appendChild(letterElement);
     });
 }
-
-function moveLetter(letterElement) {
-    const answerBox = document.getElementById('answer-box');
-    answerBox.appendChild(letterElement);
-    letterElement.onclick = null;
+function moveLetter(letterElement, targetBox, returnBox) {
+    targetBox.appendChild(letterElement);
+    // Toggle the click action to move back to the returnBox (scrambled-letters) when clicked again
+    letterElement.onclick = function() {
+        moveLetter(this, returnBox, targetBox); // Swap the roles of targetBox and returnBox on next click
+    };
 }
 
 function shuffle(array) {
@@ -177,7 +193,7 @@ function nextWord() {
 }
 
 function startTimer() {
-    timer = 10;
+    timer = timerDuration;
     const timeElement = document.getElementById('time');
     interval = setInterval(function() {
         if (timer > 0) {
@@ -197,4 +213,38 @@ function showIncorrectWords() {
     document.getElementById('incorrect-words').style.display = ''; // Display the list
 }
 
+function changeDifficulty() {
+    let difficulty = document.getElementById('difficulty').value;
+    if (difficulty === 'easy') {
+        timerDuration = 40;
+        words = allWords.filter(word => word.length === 3);
+    } else if (difficulty === 'medium'){
+        timerDuration = 30;
+        words = allWords;
+    }
+    else {
+        timerDuration = 10;
+        words = allWords;
+    }
+    restartGame();
+}
+
+function restartGame() {
+    clearInterval(interval);
+    score = 0;
+    incorrectWords = [];
+    document.getElementById('score').textContent = score;
+    document.getElementById('wrong-words-list').textContent = '';
+    document.getElementById('incorrect-words').style.display = 'none';
+    nextWord();
+}
+
+function resetLetters() {
+    const answerBox = document.getElementById('answer-box');
+    const scrambledLetters = document.getElementById('scrambled-letters');
+    Array.from(answerBox.children).forEach(letter => {
+        // Manually specifying the move function to correctly toggle back the onclick handlers
+        moveLetter(letter, scrambledLetters, answerBox);
+    });
+}
 </script>
